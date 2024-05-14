@@ -8,7 +8,7 @@ data class Pasajero(
     var subeId: Long=0
 ){
     override fun toString(): String {
-        return "$nombre, $apellido. DNI:$dni"
+        return "$nombre, $apellido"
     }
 
 }

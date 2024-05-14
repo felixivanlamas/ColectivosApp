@@ -92,28 +92,18 @@ class SimulacionViewModel @Inject constructor(
         }
     }
 
-//    private fun iniciarRecorrido() {
-//        viewModelScope.launch {
-//            _paradaActual.value = 0
-//            val paradasRecorrido = _paradasRecorridoSeleccionado.value ?: return@launch
-//            while (_paradaActual.value!! <= (paradasRecorrido.size - 1)) {
-//                delay(TIEMPOENPARADA)
-//                _paradaActual.value = _paradaActual.value!! + 1
-//            }
-//        }
-//    }
     private fun iniciarRecorrido() {
         viewModelScope.launch {
             _paradaActual.value = 0
             val paradasRecorrido = _paradasRecorridoSeleccionado.value ?: return@launch
             while (_paradaActual.value != null && _paradaActual.value!! <= (paradasRecorrido.size - 1)) {
                 delay(TIEMPOENPARADA)
-                _paradaActual.value = _paradaActual.value!! + 1
+                _paradaActual.value?.let { currentValue ->
+                    _paradaActual.value = currentValue + 1
+                }
             }
         }
     }
-
-
 
     fun subirPasajero() {
         _paradaSubida.value = _paradasRecorridoSeleccionado.value!![_paradaActual.value!!].parada.id
@@ -139,11 +129,11 @@ class SimulacionViewModel @Inject constructor(
 
 
     private fun clear(){
+        _showSimulacion.value = false
         _pasajeroSeleccionado.value = null
         _recorridoSeleccionado.value = null
         _paradasRecorridoSeleccionado.value = null
         _paradaActual.value = null
         _paradaSubida.value = null
-        _showSimulacion.value = false
     }
 }

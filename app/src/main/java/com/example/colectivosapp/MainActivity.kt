@@ -1,10 +1,12 @@
 package com.example.colectivosapp
 
 //import com.example.colectivosapp.abm.ui.LineaDetailScreen
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -53,6 +55,8 @@ import com.example.colectivosapp.abm.ui.AbmRecorridoScreen
 import com.example.colectivosapp.abm.ui.AbmRecorridoViewModel
 import com.example.colectivosapp.abm.ui.ColectivoDetailScreen
 import com.example.colectivosapp.abm.ui.ColectivoDetailViewModel
+import com.example.colectivosapp.abm.ui.HistorialScreen
+import com.example.colectivosapp.abm.ui.HistorialViewModel
 import com.example.colectivosapp.abm.ui.LineaDetailScreen
 import com.example.colectivosapp.abm.ui.LineaDetailViewModel
 import com.example.colectivosapp.abm.ui.PasajeroRegister
@@ -75,6 +79,7 @@ class MainActivity : ComponentActivity() {
     private val abmRecorridoViewModel: AbmRecorridoViewModel by viewModels()
     private val pasajeroRegisterViewModel: PasajeroRegisterViewModel by viewModels()
     private val simulacionViewModel: SimulacionViewModel by viewModels()
+    private val historialViewModel: HistorialViewModel by viewModels()
 
     private val navItemList = listOf(
         NavigationItem("Colectivos App",R.drawable.homenaviconfilled, R.drawable.homenaviconoutlined,"homeScreen"),
@@ -82,9 +87,11 @@ class MainActivity : ComponentActivity() {
         NavigationItem("Colectivos", R.drawable.colectivofillednavicon, R.drawable.colectivooutlinednavicon, "abmColectivos"),
         NavigationItem("Choferes", R.drawable.chofernavicon, R.drawable.chofernavicon, "abmChoferes"),
         NavigationItem("Paradas", R.drawable.paradanaviconfilled, R.drawable.paradanaviconoutlined, "abmParadas"),
-        NavigationItem("Recorridos", R.drawable.recorridonaviconfilled, R.drawable.recorridonaviconoutlined, "abmRecorridos")
+        NavigationItem("Recorridos", R.drawable.recorridonaviconfilled, R.drawable.recorridonaviconoutlined, "abmRecorridos"),
+        NavigationItem("Historial", R.drawable.historialnavicon, R.drawable.historialnavicon, "historialScreen")
     )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,7 +177,7 @@ class MainActivity : ComponentActivity() {
                                 navController = navigationController,
                                 startDestination = Routes.HomeScreen.route
                             ) {
-                                composable(Routes.HomeScreen.route) { HomeScreen(navigationController) };
+                                composable(Routes.HomeScreen.route) { HomeScreen(navigationController) }
                                 composable(Routes.RegistroPasajero.route) {
                                     PasajeroRegister(
                                         pasajeroRegisterViewModel,
@@ -211,6 +218,11 @@ class MainActivity : ComponentActivity() {
                                     SimulacionScreen(
                                         simulacionViewModel,
                                         navigationController
+                                    )
+                                }
+                                composable(Routes.HistorialScreen.route) {
+                                    HistorialScreen(
+                                        historialViewModel,
                                     )
                                 }
                                 composable(

@@ -13,9 +13,9 @@ sealed class Routes (val route:String){
     object ColectivoDetail: Routes("colectivoDetail/{colectivoId}"){
         fun createRoute(colectivoId:Int) = "colectivoDetail/$colectivoId"
     }
-    object ChoferDetail: Routes("choferDetail/{choferId}"){
-        fun createRoute(choferId:Int) = "choferDetail/$choferId"
-    }
+//    object ChoferDetail: Routes("choferDetail/{choferId}"){
+//        fun createRoute(choferId:Int) = "choferDetail/$choferId"
+//    }
     object RecorridoDetail: Routes("recorridoDetail/{recorridoId}"){
         fun createRoute(recorridoId:Int) = "recorridoDetail/$recorridoId"
     }
@@ -24,5 +24,5 @@ sealed class Routes (val route:String){
     }
     object RegistroPasajero: Routes("registroPasajero")
     object SimulacionScreen: Routes("simulacionScreen")
-
+    object HistorialScreen: Routes("historialScreen")
 }

@@ -11,18 +11,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,10 +40,12 @@ import androidx.navigation.NavHostController
 import com.example.colectivosapp.abm.ui.model.ParadaOrden
 import com.example.colectivosapp.abm.ui.model.Pasajero
 import com.example.colectivosapp.abm.ui.model.Recorrido
+import com.example.colectivosapp.abm.ui.model.Routes
 import com.example.colectivosapp.abm.ui.myComponents.MyDynamicSelectTextField
 import com.example.colectivosapp.abm.ui.myComponents.MyShowError
 import com.example.colectivosapp.abm.ui.state.PasajeroUiState
 import com.example.colectivosapp.abm.ui.state.RecorridoUiState
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -49,6 +56,10 @@ fun SimulacionScreen(
     LaunchedEffect(Unit) {
         simulacionViewModel.onShowSimulacionClick()
     }
+    val snackBarHostState = remember {
+        SnackbarHostState()
+    }
+    val coroutineScope = rememberCoroutineScope()
     val show: Boolean by simulacionViewModel.showSimulacion.observeAsState(initial = true)
     val pasajeroSeleccionado by simulacionViewModel.pasajeroSeleccionado.observeAsState("")
     val recorridoSeleccionado by simulacionViewModel.recorridoSeleccionado.observeAsState("")
@@ -116,6 +127,12 @@ fun SimulacionScreen(
                                     simulacionViewModel.subirPasajero()
                                 } else {
                                     simulacionViewModel.bajarPasajero()
+                                    navigationController.navigate(Routes.HomeScreen.route)
+                                    coroutineScope.launch {
+                                        snackBarHostState.showSnackbar(
+                                            message = "Viaje finalizado. Gracias por viajar con nosotros"
+                                        )
+                                    }
                                 }
                             }) }
                     }
@@ -210,7 +227,11 @@ fun RecyclerViewSimulacion(
 
 @Composable
 fun MyItemCard(item: ParadaOrden, paradaActual:Int?) {
-    Card (
+    ElevatedCard (
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        ),
+        shape = RoundedCornerShape(16.dp),
         colors = CardColors(
             containerColor = if (paradaActual == item.orden) Color.Green else Color.White,
             contentColor = Color.Black,
@@ -223,54 +244,3 @@ fun MyItemCard(item: ParadaOrden, paradaActual:Int?) {
             text = item.parada.toString())
     }
 }
-
-//@Composable
-//fun RecyclerViewSimulacion(
-//    show: Boolean,
-//    items: List<ParadaOrden>,
-//    paradaActual: Int,
-//    paradaSubida: Int?,
-//    onClick: () -> Unit
-//){
-//    if (!show) {
-//        Box(modifier = Modifier.fillMaxSize()){
-//            LazyColumn(modifier = Modifier.align(Alignment.Center)) {
-//                items(items) { item ->
-//                    MyItemCard(item = item, paradaActual)
-//                }
-//            }
-//            Button(
-//                onClick = { onClick() },
-//                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp),
-//                colors = ButtonColors(
-//                    containerColor = if (paradaSubida == null) Color.Green else Color.Red,
-//                    contentColor = Color.White,
-//                    disabledContainerColor = Color.Gray,
-//                    disabledContentColor = Color.White
-//                )
-//            ){
-//                if (paradaSubida != null){
-//                    Text(text = "Bajar")
-//                } else
-//                    Text(text = "Subir")
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun MyItemCard(item: ParadaOrden, paradaActual:Int) {
-//    Card (
-//        colors = CardColors(
-//            containerColor = if (paradaActual == item.orden) Color.Green else Color.White,
-//            contentColor = Color.Black,
-//            disabledContainerColor = Color.Gray,
-//            disabledContentColor = Color.White),
-//        modifier = Modifier
-//        .padding(8.dp)
-//        .fillMaxWidth()) {
-//        Text(
-//            text = item.parada.toString())
-//    }
-//}
-

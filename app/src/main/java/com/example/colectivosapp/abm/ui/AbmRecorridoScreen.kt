@@ -1,6 +1,5 @@
 package com.example.colectivosapp.abm.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -90,7 +90,7 @@ fun AbmRecorridoScreen(
             Scaffold(
                 floatingActionButton = {
                     MyFAB {
-                        abmRecorridoViewModel.onShowDialogClick();
+                        abmRecorridoViewModel.onShowDialogClick()
                     }
                 }
             ) { innerPadding ->
@@ -158,12 +158,12 @@ fun AddRecorridoDialog(show: Boolean, paradas: List<Parada>, onDismiss: () -> Un
                         Text(text = "Nombre del recorrido")
                     }
                 )
-                Log.d("Paradas", paradas.toString())
                 repeat(index + 1) { i ->
                     Spacer(modifier = Modifier.size(16.dp))
                     Text(text = "Parada ${i + 1}")
                     Row (Modifier.fillMaxWidth()){
                         MyDynamicSelectTextField(
+                            modifier = Modifier.weight(1f),
                             selectedValue = paradasSeleccionadas.getOrNull(i)?.nombre ?: "",
                             options = paradas.map { it.nombre },
                             label = "Seleccione parada ${i + 1}",
@@ -181,6 +181,9 @@ fun AddRecorridoDialog(show: Boolean, paradas: List<Parada>, onDismiss: () -> Un
                             },
                         )
                         IconButton(
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .weight(0.15f),
                             onClick = {
                                 paradasSeleccionadas = paradasSeleccionadas.toMutableList().apply {
                                     if (paradasSeleccionadas.size > index){
@@ -189,13 +192,20 @@ fun AddRecorridoDialog(show: Boolean, paradas: List<Parada>, onDismiss: () -> Un
                                 }
                                 index--
                             }){
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar")
                         }
                     }
                 }
-                IconButton(onClick = { index++ }) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir")
+                Spacer(modifier = Modifier.size(8.dp))
+                TextButton(onClick = { index++ }, modifier = Modifier.align(Alignment.Start)) {
+                    Row{
+                        Icon(Icons.Default.Add, contentDescription = "Añadir", modifier = Modifier.align(Alignment.CenterVertically))
+                        Text(text = "Añadir parada", modifier = Modifier.align(Alignment.CenterVertically))
+                    }
                 }
+//                IconButton(onClick = { index++ }, modifier = Modifier.align(Alignment.Start)) {
+//                    Icon(Icons.Default.Add, contentDescription = "Añadir")
+//                }
                 Spacer(modifier = Modifier.size(16.dp))
                 Button(onClick = {
                     onRecorridoAdded(nombre, paradasSeleccionadas.map { it.id })

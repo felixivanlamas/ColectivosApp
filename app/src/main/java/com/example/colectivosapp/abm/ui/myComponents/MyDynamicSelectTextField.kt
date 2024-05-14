@@ -1,6 +1,5 @@
 package com.example.colectivosapp.abm.ui.myComponents
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -42,7 +41,6 @@ fun MyDynamicSelectTextField(
             colors = OutlinedTextFieldDefaults.colors(),
             modifier = Modifier
                 .menuAnchor()
-                .fillMaxWidth()
         )
 
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

@@ -3,8 +3,8 @@ package com.example.colectivosapp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.colectivosapp.abm.ui.model.Routes
+import com.example.colectivosapp.abm.ui.myComponents.MyButtonFunction
 
 @Composable
 fun HomeScreen(navigationController: NavHostController) {
@@ -23,13 +24,11 @@ fun HomeScreen(navigationController: NavHostController) {
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge)
         Column (modifier = Modifier.align(Alignment.Center)){
-            Button(onClick = { navigationController.navigate(Routes.RegistroPasajero.route)}
-            ) {
-                Text(text = "Registrar usuario")
+            MyButtonFunction(modifier = Modifier.fillMaxWidth().padding(32.dp), "Registrar usuario"){
+                navigationController.navigate(Routes.RegistroPasajero.route)
             }
-            Button(onClick = { navigationController.navigate(Routes.SimulacionScreen.route)}
-            ) {
-                Text(text = "SIMULACION")
+            MyButtonFunction(modifier = Modifier.fillMaxWidth().padding(32.dp),"Simular viaje"){
+                navigationController.navigate(Routes.SimulacionScreen.route)
             }
         }
     }
