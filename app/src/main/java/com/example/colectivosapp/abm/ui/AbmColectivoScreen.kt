@@ -45,6 +45,7 @@ fun AbmColectivoScreen(
     val showDialog: Boolean by abmColectivoViewModel.showDialog.observeAsState(initial = false)
     val showDeleteDialog: Boolean by abmColectivoViewModel.showConfirmDeleteDialog.observeAsState(initial = false)
     val showMessage: Boolean by abmColectivoViewModel.showMessage.observeAsState(initial = false)
+    val message: String by abmColectivoViewModel.message.observeAsState(initial = "")
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     val uiState by produceState<ColectivoUiState>(
@@ -70,7 +71,7 @@ fun AbmColectivoScreen(
             Scaffold(
                 floatingActionButton = {
                     MyFAB {
-                        abmColectivoViewModel.onShowDialogClick();
+                        abmColectivoViewModel.onShowDialogClick()
                     }
                 }
             ) { innerPadding ->
@@ -100,7 +101,7 @@ fun AbmColectivoScreen(
                     itemToRemove = abmColectivoViewModel.colectivoSelected.toString(),
                     onDismiss = { abmColectivoViewModel.onConfirmDialogClose() },
                     onLineaDeleted = { abmColectivoViewModel.onItemRemove() })
-                MyMessageDialog(show = showMessage,message = abmColectivoViewModel.message, onDismiss = { abmColectivoViewModel.onMessageDialogClose() }
+                MyMessageDialog(show = showMessage,message = message, onDismiss = { abmColectivoViewModel.onMessageDialogClose() }
                 )
             }
         }

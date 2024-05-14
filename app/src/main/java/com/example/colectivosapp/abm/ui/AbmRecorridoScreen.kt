@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -127,6 +126,7 @@ fun AbmRecorridoScreen(
     }
 }
 
+
 @Composable
 fun AddRecorridoDialog(show: Boolean, paradas: List<Parada>, onDismiss: () -> Unit, onRecorridoAdded: (String, List<Int>) -> Unit) {
     var nombre by remember { mutableStateOf("") }
@@ -158,54 +158,44 @@ fun AddRecorridoDialog(show: Boolean, paradas: List<Parada>, onDismiss: () -> Un
                         Text(text = "Nombre del recorrido")
                     }
                 )
-                repeat(index + 1) { i ->
-                    Spacer(modifier = Modifier.size(16.dp))
-                    Text(text = "Parada ${i + 1}")
-                    Row (Modifier.fillMaxWidth()){
-                        MyDynamicSelectTextField(
-                            modifier = Modifier.weight(1f),
-                            selectedValue = paradasSeleccionadas.getOrNull(i)?.nombre ?: "",
-                            options = paradas.map { it.nombre },
-                            label = "Seleccione parada ${i + 1}",
-                            onValueChangedEvent = { selectedParada ->
-                                val paradaSeleccionada = paradas.firstOrNull { parada -> parada.nombre == selectedParada }
-                                paradaSeleccionada?.let { parada ->
-                                    paradasSeleccionadas = paradasSeleccionadas.toMutableList().apply {
-                                        if (i < size) {
-                                            set(i, parada)
-                                        } else {
-                                            add(parada)
+                LazyColumn {
+                    items(paradasSeleccionadas.size + 1) { index ->
+                        Spacer(modifier = Modifier.size(16.dp))
+                        Row(Modifier.fillMaxWidth()) {
+                            MyDynamicSelectTextField(
+                                modifier = Modifier.weight(1f),
+                                selectedValue = paradasSeleccionadas.getOrNull(index)?.nombre ?: "",
+                                options = paradas.map { it.nombre },
+                                label = "Seleccione parada ${index + 1}",
+                                onValueChangedEvent = { selectedParada ->
+                                    val paradaSeleccionada = paradas.firstOrNull { parada -> parada.nombre == selectedParada }
+                                    paradaSeleccionada?.let { parada ->
+                                        paradasSeleccionadas = paradasSeleccionadas.toMutableList().apply {
+                                            if (index < size) {
+                                                set(index, parada)
+                                            } else {
+                                                add(parada)
+                                            }
                                         }
                                     }
-                                }
-                            },
-                        )
-                        IconButton(
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .weight(0.15f),
-                            onClick = {
-                                paradasSeleccionadas = paradasSeleccionadas.toMutableList().apply {
-                                    if (paradasSeleccionadas.size > index){
-                                        removeAt(index)
+                                },
+                            )
+                            if (index < paradasSeleccionadas.size) {
+                                IconButton(
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically),
+                                    onClick = {
+                                        paradasSeleccionadas = paradasSeleccionadas.toMutableList().apply {
+                                            removeAt(index)
+                                        }
                                     }
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Borrar parada")
                                 }
-                                index--
-                            }){
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar")
+                            }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.size(8.dp))
-                TextButton(onClick = { index++ }, modifier = Modifier.align(Alignment.Start)) {
-                    Row{
-                        Icon(Icons.Default.Add, contentDescription = "Añadir", modifier = Modifier.align(Alignment.CenterVertically))
-                        Text(text = "Añadir parada", modifier = Modifier.align(Alignment.CenterVertically))
-                    }
-                }
-//                IconButton(onClick = { index++ }, modifier = Modifier.align(Alignment.Start)) {
-//                    Icon(Icons.Default.Add, contentDescription = "Añadir")
-//                }
                 Spacer(modifier = Modifier.size(16.dp))
                 Button(onClick = {
                     onRecorridoAdded(nombre, paradasSeleccionadas.map { it.id })

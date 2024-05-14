@@ -31,8 +31,9 @@ class AbmColectivoViewModel @Inject constructor(
     val showConfirmDeleteDialog: LiveData<Boolean> = _showConfirmDeleteDialog
     private val _showMessage = MutableLiveData<Boolean>()
     val showMessage: LiveData<Boolean> = _showMessage
-    var message: String=""
-    var colectivoSelected: Colectivo = Colectivo(0, "", 0, 0, 0)
+    private val _message = MutableLiveData<String>()
+    var message : LiveData<String> = _message
+    var colectivoSelected: Colectivo = Colectivo(patente = "")
 
     val uiState: StateFlow<ColectivoUiState> = getColectivosUseCase().map(ColectivoUiState::Success)
         .catch { ColectivoUiState.Error(it) }
@@ -48,17 +49,17 @@ class AbmColectivoViewModel @Inject constructor(
 
     fun onColectivoCreated(patente: String, lineaId: Int) {
         _showDialog.value = false
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val result = runCatching {
-                addColectivoUseCase(Colectivo(patente = patente, lineaId = lineaId, choferId = null, recorridoId = null))
+                addColectivoUseCase(Colectivo(patente = patente, lineaId = lineaId))
             }
 
             result.onSuccess {
-                message = "Colectivo agregado exitosamente"
+                _message.value = "Colectivo agregado exitosamente"
             }
 
             result.onFailure { error ->
-               message = error.message.toString()
+                _message.value = error.message
             }
         }
         _showMessage.value = true

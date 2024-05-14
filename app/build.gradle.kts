@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.6.4")
     //ROOM
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     //RETROFIT2

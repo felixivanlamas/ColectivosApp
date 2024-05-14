@@ -14,9 +14,11 @@ class AddColectivoUseCase @Inject constructor(
         return try {
             if (colectivo.lineaId == 0) {
                 Result.failure(IllegalArgumentException("No se puede agregar un colectivo sin lineaId"))
-            } else if (lineaId?.let { lineaRepository.getLineaById(it) } == null) {
+            }
+            else if (lineaId?.let { lineaRepository.getLineaById(lineaId) } == null) {
                 Result.failure(IllegalArgumentException("La línea de colectivo $lineaId no existe."))
-            } else if (colectivo.patente.isBlank()) {
+            }
+            else if (colectivo.patente.isBlank()) {
                 Result.failure(IllegalArgumentException("La patente del colectivo no puede estar vacía."))
             } else {
                 colectivoRepository.add(colectivo)
