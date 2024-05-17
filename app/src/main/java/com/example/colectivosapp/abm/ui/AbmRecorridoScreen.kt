@@ -118,7 +118,7 @@ fun AbmRecorridoScreen(
                     show = showDeleteDialog,
                     itemToRemove = abmRecorridoViewModel.recorridoSelected.toString(),
                     onDismiss = { abmRecorridoViewModel.onConfirmDialogClose() },
-                    onLineaDeleted = { abmRecorridoViewModel.onItemRemove() })
+                    onDeleted = { abmRecorridoViewModel.onItemRemove() })
                 MyMessageDialog(show = showMessage,message = abmRecorridoViewModel.message, onDismiss = { abmRecorridoViewModel.onMessageDialogClose() }
                 )
             }

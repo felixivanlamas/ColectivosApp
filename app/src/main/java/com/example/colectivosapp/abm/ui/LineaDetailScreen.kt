@@ -92,13 +92,8 @@ fun LineaDetailScreen(
                         )
                     }
                 }
-                AddColectivoDialog(
-                    show = showDialog,
-                    lineaId = lineaId,
-                    onDismiss = { lineaDetailViewModel.onDialogClose() },
-                    onColectivoAdded = { patente, linea ->
-                        lineaDetailViewModel.onColectivoCreated(patente, linea)
-                    })
+                //Dialogo para agregar un nuevo colectivo
+
                 MyConfirmDeleteDialog(show = showDeleteDialog, itemToRemove = lineaDetailViewModel.colectivoSelected.toString(), onDismiss = { lineaDetailViewModel.onConfirmDialogClose() }) {
                     lineaDetailViewModel.removeColectivo()
                 }

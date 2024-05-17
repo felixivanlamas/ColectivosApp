@@ -92,7 +92,7 @@ fun AbmLineaScreen(abmLineaviewModel: AbmLineaViewModel, navigationController: N
                     show = showDeleteDialog,
                     itemToRemove = abmLineaviewModel.lineaSelected.toString(),
                     onDismiss = { abmLineaviewModel.onConfirmDialogClose() },
-                    onLineaDeleted = { abmLineaviewModel.onItemRemove() })
+                    onDeleted = { abmLineaviewModel.onItemRemove() })
             }
         }
     }

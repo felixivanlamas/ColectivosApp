@@ -16,16 +16,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun MyConfirmDeleteDialog(show: Boolean, itemToRemove:String, onDismiss: () -> Unit, onLineaDeleted: () -> Unit) {
+fun <T> MyConfirmDeleteDialog(show: Boolean, itemToRemove:T, onDismiss: () -> Unit, onDeleted: () -> Unit) {
     if (show) {
         Dialog(onDismissRequest = { onDismiss() }) {
             Column(verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .background(Color.White)
                     .padding(16.dp)) {
-                Text(text = "Desea eliminar $itemToRemove?")
+                Text(text = "Desea eliminar ${itemToRemove.toString()}?")
                 Spacer(modifier = Modifier.size(16.dp))
-                Button(onClick = { onLineaDeleted() }, modifier = Modifier.align(Alignment.End)) {
+                Button(onClick = { onDeleted() }, modifier = Modifier.align(Alignment.End)) {
                     Text(text = "Confirmar")
                 }
             }

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class ColectivoEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val patente: String,
+    val patente: String? = null,
     val lineaId: Int? = null,
     val choferId: Int? = null,
     val recorridoId: Int? = null

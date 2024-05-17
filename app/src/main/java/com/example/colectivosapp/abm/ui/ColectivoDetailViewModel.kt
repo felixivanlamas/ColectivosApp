@@ -52,7 +52,6 @@ class ColectivoDetailViewModel @Inject constructor(
             _selectedColectivo.value = getColectivoByIdUseCase(colectivoId)
             _selectedChofer.value = _selectedColectivo.value?.chofer
             _selectedRecorrido.value = _selectedColectivo.value?.recorrido
-            //_buttonState.value = verificarNull()
         }
     }
 
@@ -77,10 +76,6 @@ class ColectivoDetailViewModel @Inject constructor(
                     recorridoId = _selectedRecorrido.value?.id))
         }
     }
-    private fun verificarNull(): Boolean {
-        return _selectedColectivo.value?.chofer == null || _selectedColectivo.value?.recorrido == null
-    }
-
     private fun verificarCambios():Boolean{
         return verificarCambioChofer() || verificarCambioRecorrido()
     }

@@ -1,6 +1,8 @@
 package com.example.colectivosapp.abm.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,13 +31,20 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import com.example.colectivosapp.abm.ui.model.Chofer
+import com.example.colectivosapp.abm.ui.model.Linea
+import com.example.colectivosapp.abm.ui.model.Recorrido
 import com.example.colectivosapp.abm.ui.model.Routes
 import com.example.colectivosapp.abm.ui.myComponents.MyConfirmDeleteDialog
+import com.example.colectivosapp.abm.ui.myComponents.MyDynamicSelectTextField
 import com.example.colectivosapp.abm.ui.myComponents.MyFAB
 import com.example.colectivosapp.abm.ui.myComponents.MyMessageDialog
 import com.example.colectivosapp.abm.ui.myComponents.MyRecyclerView
 import com.example.colectivosapp.abm.ui.myComponents.MyShowError
+import com.example.colectivosapp.abm.ui.state.ChoferUiState
 import com.example.colectivosapp.abm.ui.state.ColectivoUiState
+import com.example.colectivosapp.abm.ui.state.LineaUiState
+import com.example.colectivosapp.abm.ui.state.RecorridoUiState
 
 @Composable
 fun AbmColectivoScreen(
@@ -46,21 +55,56 @@ fun AbmColectivoScreen(
     val showDeleteDialog: Boolean by abmColectivoViewModel.showConfirmDeleteDialog.observeAsState(initial = false)
     val showMessage: Boolean by abmColectivoViewModel.showMessage.observeAsState(initial = false)
     val message: String by abmColectivoViewModel.message.observeAsState(initial = "")
+    val patenteCreada: String by abmColectivoViewModel.patenteCreada.observeAsState("")
+    val selectedLinea: Linea by abmColectivoViewModel.selectedLinea.observeAsState(initial = Linea())
+    val selectedChofer:Chofer by abmColectivoViewModel.selectedChofer.observeAsState(initial = Chofer())
+    val selectedRecorrido:Recorrido by abmColectivoViewModel.selectedRecorrido.observeAsState(initial = Recorrido())
+
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    val uiState by produceState<ColectivoUiState>(
+    val uiStateColectivos by produceState<ColectivoUiState>(
         initialValue = ColectivoUiState.Loading,
         key1 = lifecycle,
         key2 = abmColectivoViewModel
     ) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-            abmColectivoViewModel.uiState.collect { value = it }
+            abmColectivoViewModel.uiStateColectivos.collect { value = it }
         }
     }
 
-    when (uiState) {
+    val uiStateLineas by produceState<LineaUiState>(
+        initialValue = LineaUiState.Loading,
+        key1 = lifecycle,
+        key2 = abmColectivoViewModel
+    ) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            abmColectivoViewModel.uiStateLineas.collect { value = it }
+        }
+    }
+
+    val uiStateChoferes by produceState<ChoferUiState>(
+        initialValue = ChoferUiState.Loading,
+        key1 = lifecycle,
+        key2 = abmColectivoViewModel
+    ) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            abmColectivoViewModel.uiStateChoferes.collect { value = it }
+        }
+    }
+
+    val uiStateRecorridos by produceState<RecorridoUiState>(
+        initialValue = RecorridoUiState.Loading,
+        key1 = lifecycle,
+        key2 = abmColectivoViewModel
+    ) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            abmColectivoViewModel.uiStateRecorridos.collect { value = it }
+        }
+    }
+
+    when (uiStateColectivos) {
         is ColectivoUiState.Error -> {
-            MyShowError((uiState as ColectivoUiState.Error).throwable)
+            MyShowError((uiStateColectivos as ColectivoUiState.Error).throwable)
         }
 
         is ColectivoUiState.Loading -> {
@@ -77,7 +121,7 @@ fun AbmColectivoScreen(
             ) { innerPadding ->
                 MyRecyclerView(
                     modifier = Modifier.padding(innerPadding),
-                    items= (uiState as ColectivoUiState.Success).colectivos,
+                    items= (uiStateColectivos as ColectivoUiState.Success).colectivos,
                     onItemClick = {navigationController.navigate(Routes.ColectivoDetail.createRoute(it.id))},
                     onItemLongPress = {abmColectivoViewModel.onShowConfirmDeleteDialogClick(it)})
                 {
@@ -91,16 +135,25 @@ fun AbmColectivoScreen(
                 }
                 AddColectivoDialog(
                     show = showDialog,
+                    patenteCreada = patenteCreada,
+                    selectedChofer = selectedChofer,
+                    selectedLinea = selectedLinea,
+                    selectedRecorrido = selectedRecorrido,
+                    choferes = (uiStateChoferes as ChoferUiState.Success).choferes,
+                    lineas = (uiStateLineas as LineaUiState.Success).lineas,
+                    recorridos = (uiStateRecorridos as RecorridoUiState.Success).recorridos,
                     onDismiss = { abmColectivoViewModel.onDialogClose() },
-                    onColectivoAdded = { patente, linea ->
-                        abmColectivoViewModel.onColectivoCreated(patente, linea)
-                    }
+                    onPatenteChanged = { abmColectivoViewModel.onPatenteChanged(it) },
+                    onChoferChanged = { abmColectivoViewModel.onChoferChanged(it) },
+                    onLineaChanged = { abmColectivoViewModel.onLineaChanged(it) },
+                    onRecorridoChanged = { abmColectivoViewModel.onRecorridoChanged(it) },
+                    onColectivoAdded = { abmColectivoViewModel.onColectivoAdded() },
                 )
                 MyConfirmDeleteDialog(
                     show = showDeleteDialog,
-                    itemToRemove = abmColectivoViewModel.colectivoSelected.toString(),
+                    itemToRemove = abmColectivoViewModel.colectivoSelected.value,
                     onDismiss = { abmColectivoViewModel.onConfirmDialogClose() },
-                    onLineaDeleted = { abmColectivoViewModel.onItemRemove() })
+                    onDeleted = { abmColectivoViewModel.onItemRemove() })
                 MyMessageDialog(show = showMessage,message = message, onDismiss = { abmColectivoViewModel.onMessageDialogClose() }
                 )
             }
@@ -109,58 +162,82 @@ fun AbmColectivoScreen(
 }
 
 @Composable
-fun AddColectivoDialog(show: Boolean, lineaId:Int? = null,onDismiss: () -> Unit, onColectivoAdded: (String,Int) -> Unit) {
-    var patente by remember { mutableStateOf("") }
-    var linea by remember { mutableStateOf(lineaId?.toString() ?: "") }
+fun AddColectivoDialog(
+    show: Boolean,
+    patenteCreada: String,
+    selectedLinea: Linea,
+    selectedChofer:Chofer ,
+    selectedRecorrido:Recorrido ,
+    choferes: List<Chofer>,
+    lineas: List<Linea>,
+    recorridos: List<Recorrido> ,
+    onDismiss: () -> Unit,
+    onPatenteChanged: (String) -> Unit ,
+    onChoferChanged: (Chofer) -> Unit ,
+    onLineaChanged: (Linea) -> Unit ,
+    onRecorridoChanged: (Recorrido) -> Unit ,
+    onColectivoAdded: () -> Unit) {
     if (show) {
-        Dialog(onDismissRequest = { onDismiss() }) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Añadir colectivo",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.align(
-                        Alignment.CenterHorizontally
+        Box(contentAlignment = Alignment.Center){
+            Dialog(onDismissRequest = { onDismiss() }) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Añadir colectivo",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.align(
+                            Alignment.CenterHorizontally
+                        )
                     )
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                TextField(
-                    value = patente,
-                    onValueChange = { patente = it },
-                    singleLine = true,
-                    maxLines = 1,
-                    label = {
-                        Text(text = "Patente del colectivo")
+                    TextField( value = patenteCreada, onValueChange = { onPatenteChanged(it) }, label = { Text("Patente") })
+                    MyDynamicSelectTextField(
+                        selectedValue = selectedLinea.toString(),
+                        options = lineas,
+                        label = "Seleccione una linea",
+                        onValueChangedEvent = {
+                            if (it != null) {
+                                onLineaChanged(it)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    MyDynamicSelectTextField(
+                        selectedValue = selectedChofer.toString(),
+                        options = choferes,
+                        label = "Seleccione un chofer",
+                        onValueChangedEvent = {
+                            if (it != null) {
+                                onChoferChanged(it)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    MyDynamicSelectTextField(
+                        selectedValue = selectedRecorrido.toString(),
+                        options = recorridos,
+                        label = "Seleccione un recorrido",
+                        onValueChangedEvent = {
+                            if (it != null) {
+                                onRecorridoChanged(it)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Button(onClick = {
+                        onColectivoAdded()
+                    }, Modifier.fillMaxWidth()) {
+                        Text(text = "Añadir")
                     }
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                TextField(
-                    enabled = lineaId == null,
-                    value = linea,
-                    onValueChange = { linea = it },
-                    singleLine = true,
-                    maxLines = 1,
-                    label = {
-                        Text(text = "Numero de linea")
-                    }
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                Button(onClick = {
-                    if(linea != ""){
-                        onColectivoAdded(patente,linea.toInt())
-                    }
-                    onColectivoAdded(patente,0)
-                    patente = ""
-                    linea = ""
-                }, Modifier.fillMaxWidth()) {
-                    Text(text = "Añadir")
                 }
             }
         }
+
     }
 }

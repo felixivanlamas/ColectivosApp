@@ -14,7 +14,7 @@ class ColectivoRepository @Inject constructor(private val colectivoDao: Colectiv
         colectivoDao.getAllColectivos().map { items -> items.map {
             Colectivo(
                 id = it.id,
-                patente = it.patente,
+                patente = it.patente!!,
                 lineaId = it.lineaId ,
                 choferId = it.choferId,
                 recorridoId = it.recorridoId)
@@ -25,7 +25,7 @@ class ColectivoRepository @Inject constructor(private val colectivoDao: Colectiv
             items -> items.map {
                 Colectivo(
                     id = it.id,
-                    patente = it.patente,
+                    patente = it.patente!!,
                     lineaId = it.lineaId ,
                     choferId = it.choferId,
                     recorridoId = it.recorridoId)
@@ -53,5 +53,5 @@ fun Colectivo.toEntity(): ColectivoEntity {
     return ColectivoEntity(this.id, this.patente, this.lineaId, this.choferId, this.recorridoId)
 }
 fun ColectivoEntity.toColectivo(): Colectivo {
-    return Colectivo(this.id, this.patente, this.lineaId, this.choferId, this.recorridoId)
+    return Colectivo(this.id, this.patente!!, this.lineaId, this.choferId, this.recorridoId)
 }

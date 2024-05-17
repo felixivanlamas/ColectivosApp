@@ -35,7 +35,7 @@ class AbmRecorridoViewModel @Inject constructor(
     private val _showMessage = MutableLiveData<Boolean>()
     val showMessage: LiveData<Boolean> = _showMessage
     var message: String = ""
-    var recorridoSelected: Recorrido = Recorrido(0, "")
+    var recorridoSelected: Recorrido = Recorrido()
 
     val uiStateParadas: StateFlow<ParadaUiState> = getParadasUseCase().map(ParadaUiState::Success)
         .catch { ParadaUiState.Error(it) }

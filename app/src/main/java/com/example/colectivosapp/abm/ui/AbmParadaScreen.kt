@@ -99,7 +99,7 @@ fun AbmParadaScreen(
                     show = showDeleteDialog,
                     itemToRemove = abmParadaViewModel.paradaSelected.toString(),
                     onDismiss = { abmParadaViewModel.onConfirmDialogClose() },
-                    onLineaDeleted = { abmParadaViewModel.onItemRemove() })
+                    onDeleted = { abmParadaViewModel.onItemRemove() })
                 MyMessageDialog(show = showMessage,message = abmParadaViewModel.message, onDismiss = { abmParadaViewModel.onMessageDialogClose() }
                 )
             }

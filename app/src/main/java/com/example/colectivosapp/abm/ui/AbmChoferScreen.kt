@@ -98,7 +98,7 @@ fun AbmChoferScreen(
                     show = showDeleteDialog,
                     itemToRemove = abmChoferScreenViewModel.choferSelected.toString(),
                     onDismiss = { abmChoferScreenViewModel.onConfirmDialogClose() },
-                    onLineaDeleted = { abmChoferScreenViewModel.onItemRemove() })
+                    onDeleted = { abmChoferScreenViewModel.onItemRemove() })
                 MyMessageDialog(show = showMessage,message = abmChoferScreenViewModel.message, onDismiss = { abmChoferScreenViewModel.onMessageDialogClose() }
                 )
             }
