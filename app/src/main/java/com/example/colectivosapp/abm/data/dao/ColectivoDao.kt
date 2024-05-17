@@ -18,7 +18,7 @@ interface ColectivoDao {
     fun getColectivosByLineaId(lineaId: Int): Flow<List<ColectivoEntity>>
 
     @Query("SELECT * FROM colectivo_table WHERE id = :id")
-    fun getColectivoById(id: Int): ColectivoEntity
+    suspend fun getColectivoById(id: Int): ColectivoEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertColectivo(item: ColectivoEntity)

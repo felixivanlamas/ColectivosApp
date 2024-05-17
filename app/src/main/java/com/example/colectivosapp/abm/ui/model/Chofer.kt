@@ -6,6 +6,8 @@ data class Chofer(
     val apellido: String,
     val documento: String
 ){
+    constructor(): this(0, "", "", "")
+
     override fun toString(): String {
         return "$nombre $apellido"
     }

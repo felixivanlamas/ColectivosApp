@@ -16,14 +16,15 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyDynamicSelectTextField(
+fun <T> MyDynamicSelectTextField(
     selectedValue: String,
-    options: List<String>,
+    options: List<T>,
     label: String,
-    onValueChangedEvent: (String) -> Unit,
+    onValueChangedEvent: (T?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val optionsWithNull = listOf<T?>(null) + options
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -44,9 +45,9 @@ fun MyDynamicSelectTextField(
         )
 
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option: String ->
+            optionsWithNull.forEach { option: T? ->
                 DropdownMenuItem(
-                    text = { Text(text = option) },
+                    text = { Text(text = option?.toString() ?: "(No asignar (null))") },
                     onClick = {
                         expanded = false
                         onValueChangedEvent(option)

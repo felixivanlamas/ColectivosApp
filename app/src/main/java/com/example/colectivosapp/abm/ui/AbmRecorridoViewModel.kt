@@ -23,10 +23,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AbmRecorridoViewModel @Inject constructor(
-    private val getRecorridosUseCase: GetRecorridosUseCase,
+    getRecorridosUseCase: GetRecorridosUseCase,
     private val addRecorridoUseCase: AddRecorridoUseCase,
     private val removeRecorridoUseCase: RemoveRecorridoUseCase,
-    private val getParadasUseCase: GetParadasUseCase
+    getParadasUseCase: GetParadasUseCase
 ):ViewModel() {
     private val _showDialog = MutableLiveData<Boolean>()
     val showDialog: LiveData<Boolean> = _showDialog

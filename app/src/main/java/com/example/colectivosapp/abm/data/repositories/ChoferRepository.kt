@@ -26,6 +26,10 @@ class ChoferRepository @Inject constructor(private val choferDao: ChoferDao){
     suspend fun delete(chofer: Chofer){
         choferDao.deleteChofer(chofer.toEntity())
     }
+
+    suspend fun getChoferById(it: Int):Chofer {
+        return choferDao.getChoferById(it).toChofer()
+    }
 }
 
 fun Chofer.toEntity(): ChoferEntity{

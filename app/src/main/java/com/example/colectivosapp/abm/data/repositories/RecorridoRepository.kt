@@ -36,6 +36,9 @@ class RecorridoRepository @Inject constructor(private val recorridoDao: Recorrid
         return Recorrido(recorrido.recorrido.recorridoId, recorrido.recorrido.nombreRecorrido, paradasOrdenadas)
     }
 
+    suspend fun getRecorridoById(id: Int) : Recorrido {
+        return recorridoDao.getRecorridoById(id).toRecorrido()
+    }
 
     suspend fun insertRecorrido(recorrido: Recorrido, paradasIds: List<Int>) {
         try {
