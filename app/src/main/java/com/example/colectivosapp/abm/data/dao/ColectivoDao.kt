@@ -20,6 +20,8 @@ interface ColectivoDao {
     @Query("SELECT * FROM colectivo_table WHERE id = :id")
     suspend fun getColectivoById(id: Int): ColectivoEntity
 
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertColectivo(item: ColectivoEntity)
 

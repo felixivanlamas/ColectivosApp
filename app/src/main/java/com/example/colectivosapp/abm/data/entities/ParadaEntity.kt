@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey
 data class ParadaEntity(
     @PrimaryKey(autoGenerate = true)
     val paradaId: Int=0,
-    val nombreParada: String,
-    val direccion: String
+    val nombreParada: String?,
+    val direccion: String?,
+    val latitud: Double?,
+    val longitud: Double?
 )

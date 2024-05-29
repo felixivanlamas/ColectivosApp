@@ -12,10 +12,10 @@ import javax.inject.Singleton
 class ChoferRepository @Inject constructor(private val choferDao: ChoferDao){
     val choferes: Flow<List<Chofer>> =
         choferDao.getAllChoferes().map { items ->  items.map {
-            Chofer(it.id, it.nombre, it.apellido, it.documento)
+            Chofer(it.id, it.nombre, it.apellido, it.documento,  it.colectivoId)
         }}
 
-    suspend fun getChoferbyId(id: Int): Chofer{
+    suspend fun getChoferById(id: Int): Chofer{
         return choferDao.getChoferById(id).toChofer()
     }
 
@@ -26,16 +26,12 @@ class ChoferRepository @Inject constructor(private val choferDao: ChoferDao){
     suspend fun delete(chofer: Chofer){
         choferDao.deleteChofer(chofer.toEntity())
     }
-
-    suspend fun getChoferById(it: Int):Chofer {
-        return choferDao.getChoferById(it).toChofer()
-    }
 }
 
 fun Chofer.toEntity(): ChoferEntity{
-    return ChoferEntity(this.id,this.nombre, this.apellido, this.documento)
+    return ChoferEntity(this.id,this.nombre, this.apellido, this.documento, this.colectivoId)
 }
 
 fun ChoferEntity.toChofer(): Chofer{
-    return Chofer(this.id, this.nombre, this.apellido, this.documento)
+    return Chofer(this.id, this.nombre, this.apellido, this.documento, this.colectivoId)
 }

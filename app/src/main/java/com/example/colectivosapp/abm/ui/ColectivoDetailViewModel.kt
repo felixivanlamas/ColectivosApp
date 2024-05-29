@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.colectivosapp.abm.domain.GetChoferesUseCase
-import com.example.colectivosapp.abm.domain.GetColectivoByIdUseCase
+import com.example.colectivosapp.abm.domain.GetColectivoCompletoByIdUseCase
 import com.example.colectivosapp.abm.domain.GetRecorridosUseCase
 import com.example.colectivosapp.abm.domain.UpdateColectivoUseCase
 import com.example.colectivosapp.abm.ui.model.Chofer
@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ColectivoDetailViewModel @Inject constructor(
-    private val getColectivoByIdUseCase: GetColectivoByIdUseCase,
+    private val getColectivoCompletoByIdUseCase: GetColectivoCompletoByIdUseCase,
     private val updateColectivoUseCase: UpdateColectivoUseCase,
     getChoferesUseCase: GetChoferesUseCase,
     getRecorridosUseCase: GetRecorridosUseCase
@@ -49,7 +49,7 @@ class ColectivoDetailViewModel @Inject constructor(
 
     fun getColectivo(colectivoId: Int) {
         viewModelScope.launch {
-            _selectedColectivo.value = getColectivoByIdUseCase(colectivoId)
+            _selectedColectivo.value = getColectivoCompletoByIdUseCase(colectivoId)
             _selectedChofer.value = _selectedColectivo.value?.chofer
             _selectedRecorrido.value = _selectedColectivo.value?.recorrido
         }
@@ -67,13 +67,15 @@ class ColectivoDetailViewModel @Inject constructor(
 
     fun saveChanges() {
         viewModelScope.launch {
-            updateColectivoUseCase(
-                Colectivo(
-                    id = _selectedColectivo.value?.id!!,
-                    patente = _selectedColectivo.value?.patente!!,
-                    lineaId = _selectedColectivo.value?.linea!!.id,
-                    choferId = _selectedChofer.value?.id,
-                    recorridoId = _selectedRecorrido.value?.id))
+            if(verificarCambios()){
+                updateColectivoUseCase(
+                    Colectivo(
+                        id = _selectedColectivo.value?.id!!,
+                        patente = _selectedColectivo.value?.patente!!,
+                        lineaId = _selectedColectivo.value?.linea!!.id,
+                        choferId = _selectedChofer.value?.id,
+                        recorridoId = _selectedRecorrido.value?.id))
+                }
         }
     }
     private fun verificarCambios():Boolean{

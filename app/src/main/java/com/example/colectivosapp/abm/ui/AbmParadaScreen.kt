@@ -1,17 +1,27 @@
 package com.example.colectivosapp.abm.ui
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -30,23 +40,35 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.example.colectivosapp.abm.ui.model.Routes
+import com.example.colectivosapp.abm.ui.myComponents.MyCenterPointMapMarker
 import com.example.colectivosapp.abm.ui.myComponents.MyConfirmDeleteDialog
 import com.example.colectivosapp.abm.ui.myComponents.MyFAB
 import com.example.colectivosapp.abm.ui.myComponents.MyMessageDialog
 import com.example.colectivosapp.abm.ui.myComponents.MyRecyclerView
 import com.example.colectivosapp.abm.ui.myComponents.MyShowError
 import com.example.colectivosapp.abm.ui.state.ParadaUiState
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun AbmParadaScreen(
     abmParadaViewModel: AbmParadaViewModel,
+    locationViewModel: LocationViewModel,
     navigationController: NavHostController
 ) {
-    val showDialog: Boolean by abmParadaViewModel.showDialog.observeAsState(initial = false)
-    val showDeleteDialog: Boolean by abmParadaViewModel.showConfirmDeleteDialog.observeAsState(initial = false)
-    val showMessage: Boolean by abmParadaViewModel.showMessage.observeAsState(initial = false)
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
+    val nombre: String by abmParadaViewModel.nombre.observeAsState(initial = "")
+    val direccion: String by abmParadaViewModel.direccion.observeAsState(initial = "")
+    val latitud: String by abmParadaViewModel.latitud.observeAsState(initial = "0.0")
+    val longitud: String by abmParadaViewModel.longitud.observeAsState(initial = "0.0")
+    val showDialog: Boolean by abmParadaViewModel.showDialog.observeAsState(initial = false)
+    val showDeleteDialog: Boolean by abmParadaViewModel.showConfirmDeleteDialog.observeAsState(
+        initial = false
+    )
+    val showMessage: Boolean by abmParadaViewModel.showMessage.observeAsState(initial = false)
+    val showMapMarker: Boolean by abmParadaViewModel.showMapMarker.observeAsState(initial = false)
+
+    val isMyLocationEnabled:Boolean by locationViewModel.isMyLocationEnabled.observeAsState(initial = false)
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val uiState by produceState<ParadaUiState>(
         initialValue = ParadaUiState.Loading,
         key1 = lifecycle,
@@ -69,16 +91,18 @@ fun AbmParadaScreen(
         is ParadaUiState.Success -> {
             Scaffold(
                 floatingActionButton = {
-                    MyFAB {
-                        abmParadaViewModel.onShowDialogClick();
+                    if (!showMapMarker) {
+                        MyFAB {
+                            abmParadaViewModel.onShowDialogClick();
+                        }
                     }
                 }
             ) { innerPadding ->
                 MyRecyclerView(
                     modifier = Modifier.padding(innerPadding),
-                    items= (uiState as ParadaUiState.Success).paradas,
-                    onItemClick = {navigationController.navigate(Routes.ParadaDetail.createRoute(it.id))},
-                    onItemLongPress = {abmParadaViewModel.onShowConfirmDeleteDialogClick(it)})
+                    items = (uiState as ParadaUiState.Success).paradas,
+                    onItemClick = { navigationController.navigate(Routes.ParadaDetail.createRoute(it.id)) },
+                    onItemLongPress = { abmParadaViewModel.onShowConfirmDeleteDialogClick(it) })
                 {
                     Text(
                         text = it.toString(),
@@ -89,28 +113,62 @@ fun AbmParadaScreen(
                     )
                 }
                 AddParadaDialog(
+                    nombre = nombre,
+                    direccion = direccion,
+                    latitud = latitud,
+                    longitud = longitud,
                     show = showDialog,
                     onDismiss = { abmParadaViewModel.onDialogClose() },
-                    onParadaAdded = { nombre, direccion ->
-                        abmParadaViewModel.onParadaCreated(nombre, direccion)
-                    }
+                    onUbicacionClick = { abmParadaViewModel.onUbicacionClick() },
+                    onParadaAdded = { abmParadaViewModel.onParadaCreated() },
+                    onNombreChange = { abmParadaViewModel.onNombreChange(it) },
+                    onDireccionChange = { abmParadaViewModel.onDireccionChange(it) },
+                    onLatitudChange = { abmParadaViewModel.onLatitudChange(it) },
+                    onLongitudChange = { abmParadaViewModel.onLongitudChange(it) }
                 )
                 MyConfirmDeleteDialog(
                     show = showDeleteDialog,
                     itemToRemove = abmParadaViewModel.paradaSelected.toString(),
                     onDismiss = { abmParadaViewModel.onConfirmDialogClose() },
                     onDeleted = { abmParadaViewModel.onItemRemove() })
-                MyMessageDialog(show = showMessage,message = abmParadaViewModel.message, onDismiss = { abmParadaViewModel.onMessageDialogClose() }
+                MyMessageDialog(
+                    show = showMessage,
+                    message = abmParadaViewModel.message,
+                    onDismiss = { abmParadaViewModel.onMessageDialogClose() }
                 )
+                if (showMapMarker) {
+                    RequestLocationPermission {
+                        locationViewModel.startLocationUpdates()
+                        locationViewModel.enableMyLocation()
+                    }
+                    MyCenterPointMapMarker(
+                        isMyLocationEnabled = isMyLocationEnabled,
+                        initialPosition = LatLng(latitud.toDouble(), longitud.toDouble()),
+                        onClickListener = { abmParadaViewModel.onMapMarkerClick(it) },
+                        onBack = { abmParadaViewModel.onMapMarkerBack() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun AddParadaDialog(show: Boolean, onDismiss: () -> Unit, onParadaAdded: (String, String) -> Unit){
-    var nombre by remember { mutableStateOf("") }
-    var direccion by remember { mutableStateOf("") }
+fun AddParadaDialog(
+    nombre: String,
+    direccion: String,
+    latitud: String,
+    longitud: String,
+    show: Boolean,
+    onDismiss: () -> Unit,
+    onUbicacionClick: () -> Unit,
+    onParadaAdded: () -> Unit,
+    onNombreChange: (String) -> Unit,
+    onDireccionChange: (String) -> Unit,
+    onLatitudChange: (String) -> Unit,
+    onLongitudChange: (String) -> Unit
+) {
     if (show) {
         Dialog(onDismissRequest = { onDismiss() }) {
             Column(
@@ -119,43 +177,85 @@ fun AddParadaDialog(show: Boolean, onDismiss: () -> Unit, onParadaAdded: (String
                     .background(Color.White)
                     .padding(16.dp)
             ) {
-                Text(
-                    text = "Añadir parada",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.align(
-                        Alignment.CenterHorizontally
+                Row {
+                    Text(
+                        text = "Añadir parada",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .weight(1f)
                     )
-                )
+                    IconButton(
+                        onClick = { onUbicacionClick() },
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "ubicacion"
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.size(16.dp))
                 TextField(
                     value = nombre,
-                    onValueChange = { nombre = it },
+                    onValueChange = { onNombreChange(it) },
                     singleLine = true,
                     maxLines = 1,
-                    label = {
-                        Text(text = "Nombre de la parada")
-                    }
+                    label = { Text(text = "Nombre de la parada") }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 TextField(
                     value = direccion,
-                    onValueChange = { direccion = it },
+                    onValueChange = { onDireccionChange(it) },
                     singleLine = true,
                     maxLines = 1,
-                    label = {
-                        Text(text = "Dirección de la parada")
-                    }
+                    label = { Text(text = "Dirección de la parada") }
+                )
+                Spacer(modifier = Modifier.size(16.dp))
+                TextField(
+                    value = latitud,
+                    onValueChange = { onLatitudChange(it) },
+                    singleLine = true,
+                    maxLines = 1,
+                    label = { Text(text = "Latitud") }
+                )
+                Spacer(modifier = Modifier.size(16.dp))
+                TextField(
+                    value = longitud,
+                    onValueChange = { onLongitudChange(it) },
+                    singleLine = true,
+                    maxLines = 1,
+                    label = { Text(text = "Longitud") }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Button(onClick = {
-                    onParadaAdded(nombre,direccion)
-                    nombre = ""
-                    direccion = ""
+                    onParadaAdded()
                 }, Modifier.fillMaxWidth()) {
                     Text(text = "Añadir")
                 }
             }
         }
+    }
+}
+
+@Composable
+fun RequestLocationPermission(
+    onPermissionGranted: () -> Unit
+) {
+    var permissionGranted by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        permissionGranted = isGranted
+    }
+
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    if (permissionGranted) {
+        onPermissionGranted()
     }
 }

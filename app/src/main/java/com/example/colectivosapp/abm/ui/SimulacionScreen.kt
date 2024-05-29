@@ -2,6 +2,7 @@ package com.example.colectivosapp.abm.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.CardColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -43,6 +43,7 @@ import com.example.colectivosapp.abm.ui.model.Recorrido
 import com.example.colectivosapp.abm.ui.model.Routes
 import com.example.colectivosapp.abm.ui.myComponents.MyDynamicSelectTextField
 import com.example.colectivosapp.abm.ui.myComponents.MyShowError
+import com.example.colectivosapp.abm.ui.myComponents.MyTrackerMapMarker
 import com.example.colectivosapp.abm.ui.state.PasajeroUiState
 import com.example.colectivosapp.abm.ui.state.RecorridoUiState
 import kotlinx.coroutines.launch
@@ -52,13 +53,11 @@ import kotlinx.coroutines.launch
 fun SimulacionScreen(
     simulacionViewModel: SimulacionViewModel,
     navigationController: NavHostController
-){
+) {
     LaunchedEffect(Unit) {
         simulacionViewModel.onShowSimulacionClick()
     }
-    val snackBarHostState = remember {
-        SnackbarHostState()
-    }
+    val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val show: Boolean by simulacionViewModel.showSimulacion.observeAsState(initial = true)
     val pasajeroSeleccionado by simulacionViewModel.pasajeroSeleccionado.observeAsState("")
@@ -91,16 +90,15 @@ fun SimulacionScreen(
         is PasajeroUiState.Error -> {
             MyShowError((uiStatePasjeros as PasajeroUiState.Error).throwable)
         }
-
         is PasajeroUiState.Loading -> {
             CircularProgressIndicator()
         }
-
         is PasajeroUiState.Success -> {
             Scaffold {
                 Box(modifier = Modifier
                     .padding(it)
-                    .fillMaxSize()){
+                    .fillMaxSize()
+                ) {
                     SimulacionDialog(
                         modifier = Modifier.align(Alignment.Center),
                         show = show,
@@ -112,18 +110,20 @@ fun SimulacionScreen(
                         onRecorridoChange = { recorrido -> simulacionViewModel.onRecorridoChange(recorrido) },
                         onBackClick = {
                             simulacionViewModel.onBackClick()
-                            navigationController.popBackStack() },
+                            navigationController.popBackStack()
+                        },
                         iniciarSimulacionClick = {
                             simulacionViewModel.iniciarSimulacion()
-                        })
+                        }
+                    )
                     if (paradasRecorridoSeleccionado != null) {
                         RecyclerViewSimulacion(
                             show = show,
                             items = paradasRecorridoSeleccionado!!,
                             paradaActual = paradaActual,
-                            paradaSubida = paradaSubida ,
+                            paradaSubida = paradaSubida,
                             onClick = {
-                                if (paradaSubida == null){
+                                if (paradaSubida == null) {
                                     simulacionViewModel.subirPasajero()
                                 } else {
                                     simulacionViewModel.bajarPasajero()
@@ -134,16 +134,18 @@ fun SimulacionScreen(
                                         )
                                     }
                                 }
-                            }) }
+                            }
+                        )
                     }
                 }
             }
         }
     }
+}
 
 @Composable
 fun SimulacionDialog(
-    show:Boolean,
+    show: Boolean,
     pasajeroSeleccionado: String,
     recorridoSeleccionado: String,
     pasajeros: List<Pasajero>,
@@ -153,13 +155,13 @@ fun SimulacionDialog(
     iniciarSimulacionClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
-    ){
-    if (show){
-        Dialog(onDismissRequest = {onBackClick()}){
-            Column (modifier = modifier) {
+) {
+    if (show) {
+        Dialog(onDismissRequest = { onBackClick() }) {
+            Column(modifier = modifier.padding(16.dp)) {
                 MyDynamicSelectTextField(
                     selectedValue = pasajeroSeleccionado,
-                    options = pasajeros.map { pasajero ->  pasajero.toString() },
+                    options = pasajeros.map { pasajero -> pasajero.toString() },
                     label = "Seleccione pasajero",
                     onValueChangedEvent = {
                         val selectedPasajero =
@@ -172,7 +174,7 @@ fun SimulacionDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 MyDynamicSelectTextField(
                     selectedValue = recorridoSeleccionado,
-                    options = recorridos.map { recorrido ->  recorrido.toString() },
+                    options = recorridos.map { recorrido -> recorrido.toString() },
                     label = "Seleccione recorrido",
                     onValueChangedEvent = {
                         val selectedRecorrido =
@@ -183,14 +185,17 @@ fun SimulacionDialog(
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { iniciarSimulacionClick()},
-                    Modifier.align(Alignment.CenterHorizontally)) {
+                Button(
+                    onClick = { iniciarSimulacionClick() },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
                     Text(text = "Iniciar simulacion")
                 }
             }
         }
     }
 }
+
 @Composable
 fun RecyclerViewSimulacion(
     show: Boolean,
@@ -198,49 +203,64 @@ fun RecyclerViewSimulacion(
     paradaActual: Int?,
     paradaSubida: Int?,
     onClick: () -> Unit
-){
+) {
     if (!show) {
-        Box(modifier = Modifier.fillMaxSize()){
-            LazyColumn(modifier = Modifier.align(Alignment.Center)) {
-                items(items) { item ->
-                    MyItemCard(item = item, paradaActual)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(verticalArrangement = Arrangement.Center) {
+                LazyColumn(modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    items(items) { item ->
+                        MyItemCard(item = item, paradaActual)
+                    }
                 }
-            }
-            Button(
-                onClick = { onClick() },
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp),
-                colors = ButtonColors(
-                    containerColor = if (paradaSubida == null) Color.Green else Color.Red,
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.White
-                )
-            ){
-                if (paradaSubida != null){
-                    Text(text = "Bajar")
-                } else
-                    Text(text = "Subir")
+                MyTrackerMapMarker(items, paradaActual)
+                Button(
+                    onClick = { onClick() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (paradaSubida == null) Color.Green else Color.Red,
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.Gray,
+                        disabledContentColor = Color.White
+                    )
+                ) {
+                    if (paradaSubida != null) {
+                        Text(text = "Bajar")
+                    } else {
+                        Text(text = "Subir")
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MyItemCard(item: ParadaOrden, paradaActual:Int?) {
-    ElevatedCard (
+fun MyItemCard(item: ParadaOrden, paradaActual: Int?) {
+    ElevatedCard(
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+            defaultElevation = 8.dp
         ),
         shape = RoundedCornerShape(16.dp),
-        colors = CardColors(
+        colors = CardDefaults.elevatedCardColors(
             containerColor = if (paradaActual == item.orden) Color.Green else Color.White,
             contentColor = Color.Black,
             disabledContainerColor = Color.Gray,
-            disabledContentColor = Color.White),
+            disabledContentColor = Color.White
+        ),
         modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()) {
-        Text(
-            text = item.parada.toString())
+            .padding(vertical = 8.dp)
+            .fillMaxWidth()
+            .height(100.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = item.parada.toString()
+            )
+        }
     }
 }

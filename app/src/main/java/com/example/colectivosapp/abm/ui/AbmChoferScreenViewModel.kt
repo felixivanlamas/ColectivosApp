@@ -32,7 +32,7 @@ class AbmChoferScreenViewModel @Inject constructor(
     private val _showMessage = MutableLiveData<Boolean>()
     val showMessage: LiveData<Boolean> = _showMessage
     var message: String= ""
-    var choferSelected: Chofer = Chofer(0, "","","" )
+    var choferSelected: Chofer = Chofer(0, "","","", null)
 
     val uiState: StateFlow<ChoferUiState> = getChoferesUseCase().map(ChoferUiState::Success)
         .catch { ChoferUiState.Error(it) }
@@ -50,7 +50,7 @@ class AbmChoferScreenViewModel @Inject constructor(
         _showDialog.value = false
         viewModelScope.launch (Dispatchers.IO){
             val result = runCatching {
-                addChoferUseCase(Chofer(id = documento.toInt(), nombre = nombre, apellido = apellido, documento = documento))
+                addChoferUseCase(Chofer(id = documento.toInt(), nombre = nombre, apellido = apellido, documento = documento, null))
             }
 
             result.onSuccess {
@@ -83,4 +83,5 @@ class AbmChoferScreenViewModel @Inject constructor(
             removeChoferUseCase(choferSelected)
         }
     }
+
 }

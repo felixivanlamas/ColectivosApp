@@ -53,12 +53,15 @@ import com.example.colectivosapp.abm.ui.AbmParadaScreen
 import com.example.colectivosapp.abm.ui.AbmParadaViewModel
 import com.example.colectivosapp.abm.ui.AbmRecorridoScreen
 import com.example.colectivosapp.abm.ui.AbmRecorridoViewModel
+import com.example.colectivosapp.abm.ui.ChoferDetailScreen
+import com.example.colectivosapp.abm.ui.ChoferDetailViewModel
 import com.example.colectivosapp.abm.ui.ColectivoDetailScreen
 import com.example.colectivosapp.abm.ui.ColectivoDetailViewModel
 import com.example.colectivosapp.abm.ui.HistorialScreen
 import com.example.colectivosapp.abm.ui.HistorialViewModel
 import com.example.colectivosapp.abm.ui.LineaDetailScreen
 import com.example.colectivosapp.abm.ui.LineaDetailViewModel
+import com.example.colectivosapp.abm.ui.LocationViewModel
 import com.example.colectivosapp.abm.ui.PasajeroRegister
 import com.example.colectivosapp.abm.ui.PasajeroRegisterViewModel
 import com.example.colectivosapp.abm.ui.SimulacionScreen
@@ -75,11 +78,13 @@ class MainActivity : ComponentActivity() {
     private val abmColectivoViewModel: AbmColectivoViewModel by viewModels()
     private val colectivoDetailViewModel: ColectivoDetailViewModel by viewModels()
     private val chofereScreenViewModel: AbmChoferScreenViewModel by viewModels()
+    private val choferDetailViewModel: ChoferDetailViewModel by viewModels()
     private val abmParadaViewModel: AbmParadaViewModel by viewModels()
     private val abmRecorridoViewModel: AbmRecorridoViewModel by viewModels()
     private val pasajeroRegisterViewModel: PasajeroRegisterViewModel by viewModels()
     private val simulacionViewModel: SimulacionViewModel by viewModels()
     private val historialViewModel: HistorialViewModel by viewModels()
+    private val locationViewModel: LocationViewModel by viewModels()
 
     private val navItemList = listOf(
         NavigationItem("Colectivos App",R.drawable.homenaviconfilled, R.drawable.homenaviconoutlined,"homeScreen"),
@@ -112,6 +117,7 @@ class MainActivity : ComponentActivity() {
                         mutableIntStateOf(0)
                     }
                     ModalNavigationDrawer(
+                        gesturesEnabled= false,
                         drawerContent = {
                             ModalDrawerSheet {
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -204,7 +210,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 composable(Routes.AbmParadas.route) {
                                     AbmParadaScreen(
-                                        abmParadaViewModel,
+                                        abmParadaViewModel,locationViewModel,
                                         navigationController
                                     )
                                 }
@@ -246,6 +252,18 @@ class MainActivity : ComponentActivity() {
                                     ColectivoDetailScreen(
                                         navBackStackEntry.arguments?.getInt("colectivoId") ?: 0,
                                         colectivoDetailViewModel,
+                                        navigationController,
+                                    )
+                                }
+                                composable(
+                                    Routes.ChoferDetail.route,
+                                    arguments = listOf(navArgument("choferId") {
+                                        type = NavType.IntType
+                                    })
+                                ) { navBackStackEntry ->
+                                    ChoferDetailScreen(
+                                        navBackStackEntry.arguments?.getInt("choferId") ?: 0,
+                                        choferDetailViewModel,
                                         navigationController,
                                     )
                                 }

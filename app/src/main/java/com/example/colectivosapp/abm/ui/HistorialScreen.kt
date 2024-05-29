@@ -102,10 +102,11 @@ fun TableRow(rowData: RowDataHistorial) {
 }
 
 @Composable
-fun MyCelda(text: String, modifier: Modifier) {
-    Text(text = text, modifier = modifier,maxLines = 1)
+fun MyCelda(text: String?, modifier: Modifier) {
+    Text(text = text ?: "", modifier = modifier,maxLines = 1)
 }
 
+//VERSION MEJORADA
 //@Composable
 //fun Table(
 //    modifier: Modifier = Modifier,

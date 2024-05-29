@@ -28,6 +28,6 @@ class ParadaRepository @Inject constructor(
     }
 }
 
-fun Parada.toEntity() = ParadaEntity(id, nombre, direccion)
+fun Parada.toEntity() = ParadaEntity(id, nombre, direccion, latitud, longitud)
 
-fun ParadaEntity.toParada() = Parada(paradaId, nombreParada, direccion)
+fun ParadaEntity.toParada() = Parada(paradaId, nombreParada, direccion, latitud, longitud)

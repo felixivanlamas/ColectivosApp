@@ -77,7 +77,8 @@ fun AbmChoferScreen(
                 MyRecyclerView(
                     modifier = Modifier.padding(innerPadding),
                     items = (uiState as ChoferUiState.Success).choferes,
-                    onItemClick = {item -> navigationController.navigate(Routes.ColectivoDetail.createRoute(item.id))} ,
+                    onItemClick = { },
+//                    onItemClick = {item -> navigationController.navigate(Routes.ChoferDetail.createRoute(item.id))} ,
                     onItemLongPress = {item -> abmChoferScreenViewModel.onShowConfirmDeleteDialogClick(item)}
                 ) {
                     Text(

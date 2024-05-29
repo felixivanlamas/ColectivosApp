@@ -9,6 +9,7 @@ import com.example.colectivosapp.abm.domain.GetParadasUseCase
 import com.example.colectivosapp.abm.domain.RemoveParadaUseCase
 import com.example.colectivosapp.abm.ui.model.Parada
 import com.example.colectivosapp.abm.ui.state.ParadaUiState
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,9 +36,18 @@ class AbmParadaViewModel @Inject constructor(
     val showConfirmDeleteDialog: LiveData<Boolean> = _showConfirmDeleteDialog
     private val _showMessage = MutableLiveData<Boolean>()
     val showMessage: LiveData<Boolean> = _showMessage
+    private val _showMapMarker = MutableLiveData<Boolean>()
+    val showMapMarker: LiveData<Boolean> = _showMapMarker
     var message: String = ""
-    var paradaSelected: Parada = Parada( 0, "", "")
-
+    var paradaSelected: Parada = Parada()
+    private val _nombre = MutableLiveData<String>()
+    val nombre: LiveData<String> = _nombre
+    private val _direccion = MutableLiveData<String>()
+    val direccion: LiveData<String> = _direccion
+    private val _latitud = MutableLiveData<String>()
+    val latitud: LiveData<String> = _latitud
+    private val _longitud = MutableLiveData<String>()
+    val longitud: LiveData<String> = _longitud
 
     fun onDialogClose() {
         _showDialog.value = false
@@ -47,16 +57,12 @@ class AbmParadaViewModel @Inject constructor(
         _showConfirmDeleteDialog.value = false
     }
 
-    fun onParadaCreated(nombre: String, direccion: String) {
+    fun onParadaCreated() {
         _showDialog.value = false
         viewModelScope.launch(Dispatchers.IO) {
             val result = runCatching {
                 addParadaUseCase(
-                    Parada(
-                        id = 0,
-                        nombre = nombre,
-                        direccion = direccion
-                    )
+                    Parada(id = 0, nombre = _nombre.value, direccion = _direccion.value, latitud = _latitud.value?.toDouble(), longitud = _longitud.value?.toDouble())
                 )
             }
 
@@ -89,5 +95,38 @@ class AbmParadaViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             removeParadaUseCase(paradaSelected)
         }
+    }
+
+    fun onNombreChange(newNombre: String) {
+        _nombre.value = newNombre
+    }
+
+    fun onDireccionChange(newDireccion: String) {
+        _direccion.value = newDireccion
+    }
+
+    fun onLatitudChange(newLatitud: String) {
+        _latitud.value = newLatitud
+    }
+
+    fun onLongitudChange(newLongitud: String) {
+        _longitud.value = newLongitud
+    }
+
+    fun onMapMarkerClick(latLng: LatLng) {
+        _showMapMarker.value = false
+        _showDialog.value = true
+        _latitud.value = latLng.latitude.toString()
+        _longitud.value = latLng.longitude.toString()
+    }
+
+    fun onUbicacionClick() {
+        _showDialog.value = false
+        _showMapMarker.value = true
+    }
+
+    fun onMapMarkerBack() {
+        _showMapMarker.value = false
+        _showDialog.value = true
     }
 }

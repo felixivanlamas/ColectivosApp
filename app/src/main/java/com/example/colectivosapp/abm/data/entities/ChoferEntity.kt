@@ -10,4 +10,5 @@ data class ChoferEntity(
     val nombre: String,
     val apellido: String,
     val documento: String,
+    val colectivoId: Int?
 )
